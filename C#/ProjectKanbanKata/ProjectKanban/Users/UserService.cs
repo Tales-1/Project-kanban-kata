@@ -35,15 +35,20 @@ public sealed class UserService
         return response;
     }
 
+    // Fail first approach. Check if user is null first - easier to read in my opinion.
     public Session Login(LoginRequest loginRequest)
     {
-        var user = _userRepository.GetAll().FirstOrDefault(x => x.Username == loginRequest.Username && x.Password == loginRequest.Password);
-        if (user != null)
-            return new Session
-            {
-                Username = user.Username,
-                UserId = user.Id
-            };
-        throw new Exception("Invalid credentials");
+        var user = _userRepository
+            .GetAll()
+            .FirstOrDefault(x => x.Username == loginRequest.Username && x.Password == loginRequest.Password);
+
+        if (user is null)
+            throw new Exception("Invalid credentials");
+
+        return new Session
+        {
+            Username = user.Username,
+            UserId = user.Id
+        };
     }
 }
