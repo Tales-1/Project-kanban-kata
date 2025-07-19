@@ -22,8 +22,11 @@ public sealed class UserRepository
         using (var connection = _database.Connect())
         {
             connection.Open();
+
             using var transaction = connection.BeginTransaction();
+
             connection.Execute("insert into user(username, password, client_id) VALUES (@Username, @Password, @ClientId)", userRecord);
+
             transaction.Commit();
         }
     }
@@ -33,7 +36,9 @@ public sealed class UserRepository
         using (var connection = _database.Connect())
         {
             connection.Open();
+
             var users = connection.Query<UserRecord>("SELECT * from user ORDER BY username;");
+
             return users.ToList();
         }
     }

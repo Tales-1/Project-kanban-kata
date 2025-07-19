@@ -1,9 +1,8 @@
-using System;
-using System.Data;
-using System.Threading;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Data;
 
 namespace ProjectKanban.Data
 {

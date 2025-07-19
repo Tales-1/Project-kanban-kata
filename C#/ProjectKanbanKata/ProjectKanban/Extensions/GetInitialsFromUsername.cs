@@ -9,7 +9,6 @@ public static class StringExtensions
         if(string.IsNullOrEmpty(username))
             return string.Empty;
 
-        // splitting and looping over names allows to account for users with multiple names
         string[] names = username.Split(" ");
 
         StringBuilder initialsBuilder = new ();

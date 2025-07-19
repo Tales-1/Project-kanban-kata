@@ -1,29 +1,30 @@
-using Dapper;
 using ProjectKanban.Data;
-using ProjectKanban.Tasks;
 using ProjectKanban.Users.Dtos;
 
-namespace ProjectKanban.Users
+namespace ProjectKanban.Users;
+
+public sealed class ClientsRepository
 {
-    public sealed class ClientsRepository
+    private readonly IDatabase _database;
+
+    public ClientsRepository(IDatabase database)
     {
-        private readonly IDatabase _database;
+        _database = database;
+    }
 
-        public ClientsRepository(IDatabase database)
+    public ClientRecord Create(ClientRecord clientRecord)
+    {
+        using (var connection = _database.Connect())
         {
-            _database = database;
-        }
+            connection.Open();
 
-        public ClientRecord Create(ClientRecord clientRecord)
-        {
-            using (var connection = _database.Connect())
-            {
-                connection.Open();
-                using var transaction = connection.BeginTransaction();
-                clientRecord.Id = connection.Insert("insert into client(name) VALUES (@Name);", clientRecord);
-                transaction.Commit();
-                return clientRecord;
-            }
+            using var transaction = connection.BeginTransaction();
+
+            clientRecord.Id = connection.Insert("insert into client(name) VALUES (@Name);", clientRecord);
+
+            transaction.Commit();
+
+            return clientRecord;
         }
     }
 }
