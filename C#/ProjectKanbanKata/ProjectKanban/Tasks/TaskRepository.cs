@@ -5,50 +5,56 @@ using ProjectKanban.Tasks.Dtos;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ProjectKanban.Tasks
+namespace ProjectKanban.Tasks;
+
+// In an ideal world these queries are asynchronous - not changing it as it would require me changing the unit test code
+public sealed class TaskRepository
 {
-    public sealed class TaskRepository
+    private readonly IDatabase _database;
+
+    public TaskRepository(IDatabase database)
     {
-        private readonly IDatabase _database;
+        _database = database;
+    }
 
-        public TaskRepository(IDatabase database)
+    public TaskRecord GetById(int id)
+    {
+        using (var connection = _database.Connect())
         {
-            _database = database;
-        }
+            connection.Open();
 
-        public TaskRecord GetById(int id)
-        {
-            using (var connection = _database.Connect())
-            {
-                connection.Open();
-                using var transaction = connection.BeginTransaction();
+            using var transaction = connection.BeginTransaction();
 
-                var taskRecord = connection.QuerySingleOrDefault<TaskRecord>("SELECT * from task where id = @Id;", new { Id = id })
-                    ?? throw new TaskNotFoundException();
-
-                return taskRecord;
-            }
-        }
-
-        public TaskRecord Create(TaskRecord taskRecord)
-        {
-            using (var connection = _database.Connect())
-            {
-                connection.Open();
-                using var transaction = connection.BeginTransaction();
-                taskRecord.Id = connection.Insert("insert into task(status, description, estimated_dev_days) VALUES (@Status, @Description, @EstimatedDevDays);", taskRecord);
-                transaction.Commit();
-            }
+            var taskRecord = connection.QuerySingleOrDefault<TaskRecord>("SELECT * from task where id = @Id;", new { Id = id })
+                ?? throw new NotFoundException("task", id);
 
             return taskRecord;
         }
+    }
 
-        public List<TaskRecord> GetAll()
+    public TaskRecord Create(TaskRecord taskRecord)
+    {
+        using (var connection = _database.Connect())
         {
-            using (var connection = _database.Connect())
-            {
-                connection.Open();
-                using var transaction = connection.BeginTransaction();
+            connection.Open();
+
+            using var transaction = connection.BeginTransaction();
+
+            taskRecord.Id = connection.Insert("insert into task(client_id, status, description, estimated_dev_days) VALUES (@ClientId, @Status, @Description, @EstimatedDevDays);", taskRecord);
+
+            transaction.Commit();
+        }
+
+        return taskRecord;
+    }
+
+    public List<TaskRecord> GetAll()
+    {
+        using (var connection = _database.Connect())
+        {
+            connection.Open();
+
+            using var transaction = connection.BeginTransaction();
 
             var taskRecords = connection.Query<TaskRecord>(@"
                 SELECT * from task 
@@ -65,38 +71,44 @@ namespace ProjectKanban.Tasks
                 InProgress = TaskStatus.IN_PROGRESS, 
                 Backlog = TaskStatus.BACKLOG}).ToList();
 
-                return taskRecords;
-            }
-        }
-
-        public List<TaskAssignedRecord> GetAssignedFor(int taskId)
-        {
-            using (var connection = _database.Connect())
-            {
-                connection.Open();
-                using var transaction = connection.BeginTransaction();
-                var taskRecords = connection.Query<TaskAssignedRecord>("SELECT * from task_assigned where task_id = @TaskId;", new {TaskId = taskId}).ToList();
-                return taskRecords;
-            }
-        }
-        
-        public void CreateAssigned(TaskAssignedRecord record)
-        {
-            using (var connection = _database.Connect())
-            {
-                connection.Open();
-                using var transaction = connection.BeginTransaction();
-                connection.Execute("INSERT INTO task_assigned (task_id, user_id) VALUES (@TaskId, @UserId);", record);
-                transaction.Commit();
-            }
+            return taskRecords;
         }
     }
 
-    public struct TaskStatus
+    public List<TaskAssignedRecord> GetAssignedFor(int taskId)
     {
-        public const string BACKLOG = "Backlog";
-        public const string IN_PROGRESS = "In Progress";
-        public const string IN_SIGNOFF = "In Signoff";
-        public const string DONE = "Done";
+        using (var connection = _database.Connect())
+        {
+            connection.Open();
+
+            using var transaction = connection.BeginTransaction();
+
+            var taskRecords = connection.Query<TaskAssignedRecord>("SELECT * from task_assigned where task_id = @TaskId;", 
+                new { TaskId = taskId }).ToList();
+
+            return taskRecords;
+        }
     }
+    
+    public void CreateAssigned(TaskAssignedRecord record)
+    {
+        using (var connection = _database.Connect())
+        {
+            connection.Open();
+
+            using var transaction = connection.BeginTransaction();
+
+            connection.Execute("INSERT INTO task_assigned (task_id, user_id) VALUES (@TaskId, @UserId);", record);
+
+            transaction.Commit();
+        }
+    }
+}
+
+public struct TaskStatus
+{
+    public const string BACKLOG = "Backlog";
+    public const string IN_PROGRESS = "In Progress";
+    public const string IN_SIGNOFF = "In Signoff";
+    public const string DONE = "Done";
 }
