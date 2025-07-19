@@ -50,7 +50,7 @@ public sealed class UserRepository
             connection.Open();
 
             var user = connection.QuerySingleOrDefault<UserRecord>("SELECT * FROM user where id = @Id", new { Id = id })
-                ?? throw new UserNotFoundException();
+                ?? throw new NotFoundException("user", id);
 
             return user;
         }
