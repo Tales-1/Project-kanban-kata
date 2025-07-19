@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using ProjectKanban.Controllers;
-using ProjectKanban.Tasks;
+using ProjectKanban.Tasks.Dtos;
+using ProjectKanban.Users.Dtos;
 
 namespace ProjectKanban.Tests
 {

@@ -19,6 +19,7 @@ public sealed class UserService
     public AllUsersResponse GetAllUsers()
     {
         var userRecords = _userRepository.GetAll();
+
         var response = new AllUsersResponse { Users = new List<UserModel>() };
 
         foreach (var userRecord in userRecords)

@@ -4,10 +4,13 @@ using System.Linq;
 using ProjectKanban.Controllers.Tasks;
 using ProjectKanban.Controllers.Tasks.Models;
 using ProjectKanban.Controllers.Tasks.Responses;
+using ProjectKanban.Extensions;
+using ProjectKanban.Tasks.Dtos;
 using ProjectKanban.Users;
+using System.Collections.Generic;
 
-namespace ProjectKanban.Tasks
-{
+namespace ProjectKanban.Tasks;
+
     public class TaskService
     {
         private readonly TaskRepository _taskRepository;
