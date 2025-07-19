@@ -49,7 +49,22 @@ namespace ProjectKanban.Tasks
             {
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
-                var taskRecords = connection.Query<TaskRecord>("SELECT * from task;").ToList();
+
+            var taskRecords = connection.Query<TaskRecord>(@"
+                SELECT * from task 
+                ORDER BY 
+                (case 
+                    when status = @Done then 0
+                    when status = @SignOff then 1
+                    when status = @InProgress then 2
+                    when status = @Backlog then 3
+                    else status 
+                end)", new { 
+                Done = TaskStatus.DONE, 
+                SignOff = TaskStatus.IN_SIGNOFF, 
+                InProgress = TaskStatus.IN_PROGRESS, 
+                Backlog = TaskStatus.BACKLOG}).ToList();
+
                 return taskRecords;
             }
         }
