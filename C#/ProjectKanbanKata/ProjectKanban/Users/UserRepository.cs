@@ -1,5 +1,6 @@
 using Dapper;
 using ProjectKanban.Data;
+using ProjectKanban.Exceptions;
 using ProjectKanban.Users.Dtos;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,19 @@ public sealed class UserRepository
             connection.Open();
             var users = connection.Query<UserRecord>("SELECT * from user ORDER BY username;");
             return users.ToList();
+        }
+    }
+
+    public UserRecord Get(int id)
+    {
+        using (var connection = _database.Connect())
+        {
+            connection.Open();
+
+            var user = connection.QuerySingleOrDefault<UserRecord>("SELECT * FROM user where id = @Id", new { Id = id })
+                ?? throw new UserNotFoundException();
+
+            return user;
         }
     }
 }
