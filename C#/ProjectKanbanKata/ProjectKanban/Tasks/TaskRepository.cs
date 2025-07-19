@@ -1,7 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
 using Dapper;
 using ProjectKanban.Data;
+using ProjectKanban.Exceptions;
+using ProjectKanban.Tasks.Dtos;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ProjectKanban.Tasks
 {
@@ -73,35 +75,6 @@ namespace ProjectKanban.Tasks
                 transaction.Commit();
             }
         }
-    }
-
-    public class TaskRecord
-    {
-        public int Id { get; set; }
-        public int ClientId { get; set; }
-        public string Status { get; set; }
-        public string Description { get; set; }
-        public int EstimatedDevDays { get; set; }
-    }
-    
-    public class UserRecord
-    {
-        public int Id { get; set; }
-        public int ClientId { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
-    
-    public class ClientRecord
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
-    
-    public class TaskAssignedRecord
-    {
-        public int TaskId { get; set; }
-        public int UserId { get; set; }
     }
 
     public struct TaskStatus

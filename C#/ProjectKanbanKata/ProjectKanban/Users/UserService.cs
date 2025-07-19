@@ -2,44 +2,46 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ProjectKanban.Controllers;
+using ProjectKanban.Controllers.Users.Models;
+using ProjectKanban.Controllers.Users.Responses;
 
-namespace ProjectKanban.Users
+namespace ProjectKanban.Users;
+
+public sealed class UserService
 {
-    public sealed class UserService
+    private readonly UserRepository _userRepository;
+
+    public UserService(UserRepository userRepository)
     {
-        private readonly UserRepository _userRepository;
+        _userRepository = userRepository;
+    }
 
-        public UserService(UserRepository userRepository)
+    public AllUsersResponse GetAllUsers()
+    {
+        var userRecords = _userRepository.GetAll();
+        var response = new AllUsersResponse { Users = new List<UserModel>() };
+
+        foreach (var userRecord in userRecords)
         {
-            _userRepository = userRepository;
-        }
-
-        public AllUsersResponse GetAllUsers()
-        {
-            var userRecords = _userRepository.GetAll();
-            var response = new AllUsersResponse {Users = new List<UserModel>()};
-
-            foreach (var userRecord in userRecords)
+            response.Users.Add(new UserModel
             {
-                response.Users.Add(new UserModel
-                {
-                    Username = userRecord.Username
-                });
-            }
-
-            return response;
+                Id = userRecord.Id,
+                Username = userRecord.Username,
+            });
         }
 
-        public Session Login(LoginRequest loginRequest)
-        {
-            var user = _userRepository.GetAll().FirstOrDefault(x => x.Username == loginRequest.Username && x.Password == loginRequest.Password);
-            if (user != null)
-                return new Session
-                {
-                    Username = user.Username,
-                    UserId = user.Id
-                };
-            throw new Exception("Invalid credentials");
-        }
+        return response;
+    }
+
+    public Session Login(LoginRequest loginRequest)
+    {
+        var user = _userRepository.GetAll().FirstOrDefault(x => x.Username == loginRequest.Username && x.Password == loginRequest.Password);
+        if (user != null)
+            return new Session
+            {
+                Username = user.Username,
+                UserId = user.Id
+            };
+        throw new Exception("Invalid credentials");
     }
 }

@@ -1,6 +1,8 @@
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using ProjectKanban.Controllers.Users.Models;
+using ProjectKanban.Controllers.Users.Responses;
 using ProjectKanban.Users;
+using System.Collections.Generic;
 
 namespace ProjectKanban.Controllers
 {
@@ -20,7 +22,7 @@ namespace ProjectKanban.Controllers
             return new UserModel();
         }
         
-        [HttpGet("")]
+        [HttpGet]
         public AllUsersResponse GetAll()
         {
             return _userService.GetAllUsers();
@@ -31,23 +33,5 @@ namespace ProjectKanban.Controllers
         {
             return _userService.Login(loginRequest);
         }
-    }
-
-    public class LoginRequest
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
-
-    public class UserModel
-    {
-        public int Id { get; set; }
-        public string Username { get; set; }
-        public string Initials { get; set; }
-    }
-
-    public class AllUsersResponse
-    {
-        public List<UserModel> Users { get; set; }
     }
 }

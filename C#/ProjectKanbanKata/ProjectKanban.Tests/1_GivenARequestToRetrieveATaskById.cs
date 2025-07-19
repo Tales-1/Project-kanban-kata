@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using ProjectKanban.Tasks;
+using ProjectKanban.Tasks.Dtos;
 
 namespace ProjectKanban.Tests
 {

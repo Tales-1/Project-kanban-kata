@@ -1,7 +1,8 @@
-using System.Linq;
 using NUnit.Framework;
-using ProjectKanban.Controllers;
+using ProjectKanban.Controllers.Tasks.Models;
+using ProjectKanban.Controllers.Tasks.Responses;
 using ProjectKanban.Tasks;
+using ProjectKanban.Tasks.Dtos;
 
 namespace ProjectKanban.Tests
 {

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using ProjectKanban.Users;
 
-namespace ProjectKanban.Controllers
+namespace ProjectKanban.Controllers.Users
 {
     [Route("api/clients")]
     public class ClientsController : Controller

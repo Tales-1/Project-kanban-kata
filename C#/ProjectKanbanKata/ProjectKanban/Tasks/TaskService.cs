@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using ProjectKanban.Controllers;
+using ProjectKanban.Controllers.Tasks;
+using ProjectKanban.Controllers.Tasks.Models;
+using ProjectKanban.Controllers.Tasks.Responses;
 using ProjectKanban.Users;
 
 namespace ProjectKanban.Tasks
@@ -20,6 +22,7 @@ namespace ProjectKanban.Tasks
         public TaskModel GetById(Session session, int id)
         {
             var taskRecord = _taskRepository.GetById(id);
+
             return new TaskModel
             {
                 Description = taskRecord.Description,

@@ -1,7 +1,11 @@
 using ProjectKanban.Controllers;
+using ProjectKanban.Controllers.Tasks;
+using ProjectKanban.Controllers.Users;
+using ProjectKanban.Controllers.Users.Models;
 using ProjectKanban.Data;
 using ProjectKanban.Tasks;
 using ProjectKanban.Users;
+using ProjectKanban.Users.Dtos;
 
 namespace ProjectKanban.Tests
 {

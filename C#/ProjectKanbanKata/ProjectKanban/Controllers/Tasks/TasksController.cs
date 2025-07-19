@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using ProjectKanban.Data;
+using ProjectKanban.Controllers.Tasks.Models;
+using ProjectKanban.Controllers.Tasks.Responses;
 using ProjectKanban.Tasks;
 using ProjectKanban.Users;
 
-namespace ProjectKanban.Controllers
+namespace ProjectKanban.Controllers.Tasks
 {
     [Route("api/tasks")]
-    public  class TasksController : Controller
+    public class TasksController : Controller
     {
         private readonly Session _session;
         private readonly UserRepository _userRepository;
@@ -20,7 +19,7 @@ namespace ProjectKanban.Controllers
             _userRepository = userRepository;
             _taskService = new TaskService(taskRepository, _userRepository);
         }
-        
+
         [HttpGet("{id}")]
         public TaskModel Get(int id)
         {
@@ -31,25 +30,5 @@ namespace ProjectKanban.Controllers
         {
             return _taskService.GetAll(_session);
         }
-    }
-
-    public class TaskModel
-    {
-        public int Id { get; set; }
-        public string Description { get; set; }
-        public string Status { get; set; }
-        public int EstimatedDevDays { get; set; }
-        public List<TaskAssignedUserModel> AssignedUsers { get; set; }
-    }
-
-    public class TaskAssignedUserModel
-    {
-        public string Initials { get; set; }
-        public string Username { get; set; }
-    }
-
-    public class GetAllTasksResponse
-    {
-        public List<TaskModel> Tasks { get; set; }
     }
 }

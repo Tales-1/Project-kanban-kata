@@ -1,6 +1,7 @@
 using Dapper;
 using ProjectKanban.Data;
 using ProjectKanban.Tasks;
+using ProjectKanban.Users.Dtos;
 
 namespace ProjectKanban.Users
 {
