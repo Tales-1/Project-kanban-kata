@@ -1,66 +1,79 @@
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using ProjectKanban.Controllers.Tasks;
 using ProjectKanban.Controllers.Tasks.Models;
 using ProjectKanban.Controllers.Tasks.Responses;
 using ProjectKanban.Extensions;
-using ProjectKanban.Tasks.Dtos;
 using ProjectKanban.Users;
 using System.Collections.Generic;
 
 namespace ProjectKanban.Tasks;
 
-    public class TaskService
+public class TaskService
+{
+    private readonly TaskRepository _taskRepository;
+    private readonly UserRepository _userRepository;
+
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository)
     {
-        private readonly TaskRepository _taskRepository;
-        private readonly UserRepository _userRepository;
+        _taskRepository = taskRepository;
+        _userRepository = userRepository;
+    }
 
-        public TaskService(TaskRepository taskRepository, UserRepository userRepository)
+    public TaskModel GetById(Session session, int id)
+    {
+        var taskRecord = _taskRepository.GetById(id);
+
+        return new TaskModel
         {
-            _taskRepository = taskRepository;
-            _userRepository = userRepository;
-        }
+            Description = taskRecord.Description,
+            Status = taskRecord.Status,
+            EstimatedDevDays = taskRecord.EstimatedDevDays,
+            Id = taskRecord.Id,
+            AssignedUsers = GetAssignedUsersToTask(id)
+        };
+    }
 
-        public TaskModel GetById(Session session, int id)
+    public GetAllTasksResponse GetAll(Session session)
+    {
+        var taskRecords = _taskRepository.GetAll();
+
+        var response = new GetAllTasksResponse { Tasks = new List<TaskModel>() };
+
+        foreach (var task in taskRecords)
         {
-            var taskRecord = _taskRepository.GetById(id);
-
-            return new TaskModel
+            var taskModel = new TaskModel
             {
-                Description = taskRecord.Description,
-                Status = taskRecord.Status,
-                EstimatedDevDays = taskRecord.EstimatedDevDays,
-                Id = taskRecord.Id
+                Id = task.Id,
+                Status = task.Status,
+                EstimatedDevDays = task.EstimatedDevDays,
+                Description = task.Description,
             };
+
+            taskModel.AssignedUsers = GetAssignedUsersToTask(task.Id);
+
+            response.Tasks.Add(taskModel);
         }
 
-        public GetAllTasksResponse GetAll(Session session)
+        return response;
+    }
+
+
+    // Method to retrieve users assigned to a task to promote code re-use. 
+    public List<TaskAssignedUserModel> GetAssignedUsersToTask(int taskId)
+    {
+        var assigned = _taskRepository.GetAssignedFor(taskId);
+
+        var assignedUsers = new List<TaskAssignedUserModel>();
+
+        foreach (var assignee in assigned)
         {
-            var taskRecords = _taskRepository.GetAll();
+            var user = _userRepository.Get(assignee.UserId);
 
-            var response = new GetAllTasksResponse{Tasks = new List<TaskModel>()};
-
-            foreach (var task in taskRecords)
+            assignedUsers.Add(new TaskAssignedUserModel
             {
-                var taskModel = new TaskModel
-                {
-                    Id = task.Id,
-                    Status = task.Status,
-                    EstimatedDevDays = task.EstimatedDevDays,
-                    Description = task.Description,
-                };
-                taskModel.AssignedUsers = new List<TaskAssignedUserModel>();
-                var assigned = _taskRepository.GetAssignedFor(task.Id);
-                foreach (var assignee in assigned)
-                {
-                    var user = _userRepository.GetAll().First(x => x.Id == assignee.UserId);
-                    taskModel.AssignedUsers.Add(new TaskAssignedUserModel { Username = user.Username });
-                }
-                response.Tasks.Add(taskModel);
-            }
-
-            return response;
+                Username = user.Username,
+                Initials = user.Username.GetInitialsFromUsername()
+            });
         }
+
+        return assignedUsers;
     }
 }
