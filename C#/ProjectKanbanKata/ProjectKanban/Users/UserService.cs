@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ProjectKanban.Controllers;
 using ProjectKanban.Controllers.Users.Models;
 using ProjectKanban.Controllers.Users.Responses;
+using ProjectKanban.Extensions;
 
 namespace ProjectKanban.Users;
 
@@ -28,6 +28,7 @@ public sealed class UserService
             {
                 Id = userRecord.Id,
                 Username = userRecord.Username,
+                Initials = userRecord.Username.GetInitialsFromUsername()
             });
         }
 
