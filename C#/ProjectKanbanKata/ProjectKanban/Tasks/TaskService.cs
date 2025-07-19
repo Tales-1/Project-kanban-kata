@@ -3,6 +3,7 @@ using ProjectKanban.Controllers.Tasks.Responses;
 using ProjectKanban.Extensions;
 using ProjectKanban.Users;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProjectKanban.Tasks;
 
@@ -17,6 +18,10 @@ public class TaskService
         _userRepository = userRepository;
     }
 
+    // If we're limiting users to query a task where the client ids match then we would 
+    // pass the client id from the session into the 'GetById()' to run the check on the server
+    // Or we could run the check on the here on the client. 
+    // I've left it as is since the tests are passing.
     public TaskModel GetById(Session session, int id)
     {
         var taskRecord = _taskRepository.GetById(id);
@@ -31,9 +36,18 @@ public class TaskService
         };
     }
 
+    // We have two options:
+    // 1. Pass client id into 'GetAll()' and perform the filter on the 'server'
+    // 2. Filter tasks on the client
+    // The first option is more efficient, but I picked option 2 for clarity. The method is named 'GetAll', adding the filter clause in the sql may be misleading
+    // for developers who expect the query to return ALL tasks regardless of client id.
+    // Though if the general understanding is that you must filter by client id then option 1 is fine.
     public GetAllTasksResponse GetAll(Session session)
     {
-        var taskRecords = _taskRepository.GetAll();
+        var currentUser = _userRepository.Get(session.UserId);
+
+        var taskRecords = _taskRepository.GetAll()
+            .Where(t => t.ClientId == currentUser.ClientId).ToArray();
 
         var response = new GetAllTasksResponse { Tasks = new List<TaskModel>() };
 
@@ -45,9 +59,8 @@ public class TaskService
                 Status = task.Status,
                 EstimatedDevDays = task.EstimatedDevDays,
                 Description = task.Description,
+                AssignedUsers = GetAssignedUsersToTask(task.Id)
             };
-
-            taskModel.AssignedUsers = GetAssignedUsersToTask(task.Id);
 
             response.Tasks.Add(taskModel);
         }
