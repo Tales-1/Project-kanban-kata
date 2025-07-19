@@ -20,8 +20,11 @@ namespace ProjectKanban.Tasks
             {
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
-                var taskRecords = connection.Query<TaskRecord>("SELECT * from task;");
-                return taskRecords.First();
+
+                var taskRecord = connection.QuerySingleOrDefault<TaskRecord>("SELECT * from task where id = @Id;", new { Id = id })
+                    ?? throw new TaskNotFoundException($"Task with id: ${id} not found");
+
+                return taskRecord;
             }
         }
 
