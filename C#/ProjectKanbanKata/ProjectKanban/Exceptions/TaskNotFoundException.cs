@@ -1,6 +1,3 @@
 ﻿namespace ProjectKanban.Exceptions;
 
-public class TaskNotFoundException(string? message) : DomainException(!string.IsNullOrEmpty(message) ? message : MESSAGE)
-{
-    const string MESSAGE = "Task not found";
-}
+public class TaskNotFoundException() : DomainException("Task not found");
