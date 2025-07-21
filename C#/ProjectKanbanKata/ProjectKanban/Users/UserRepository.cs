@@ -43,7 +43,7 @@ public sealed class UserRepository
         }
     }
 
-    public UserRecord Get(int id)
+    public UserRecord GetById(int id)
     {
         using (var connection = _database.Connect())
         {

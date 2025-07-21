@@ -18,7 +18,7 @@ public class TaskService
         _userRepository = userRepository;
     }
 
-    // If we're limiting users to query a task where the client ids match then we would 
+    // If we're limiting users to only query tasks where the client ids match then we would 
     // pass the client id from the session into the 'GetById()' to run the check on the server
     // Or we could run the check on the here on the client. 
     // I've left it as is since the tests are passing.
@@ -44,7 +44,7 @@ public class TaskService
     // Though if the general understanding is that you must filter by client id then option 1 is fine.
     public GetAllTasksResponse GetAll(Session session)
     {
-        var currentUser = _userRepository.Get(session.UserId);
+        var currentUser = _userRepository.GetById(session.UserId);
 
         var taskRecords = _taskRepository.GetAll()
             .Where(t => t.ClientId == currentUser.ClientId).ToArray();
@@ -70,7 +70,7 @@ public class TaskService
 
 
     // Method to retrieve users assigned to a task to promote code re-use. 
-    public List<TaskAssignedUserModel> GetAssignedUsersToTask(int taskId)
+    private List<TaskAssignedUserModel> GetAssignedUsersToTask(int taskId)
     {
         var assigned = _taskRepository.GetAssignedFor(taskId);
 
@@ -78,7 +78,7 @@ public class TaskService
 
         foreach (var assignee in assigned)
         {
-            var user = _userRepository.Get(assignee.UserId);
+            var user = _userRepository.GetById(assignee.UserId);
 
             assignedUsers.Add(new TaskAssignedUserModel
             {
